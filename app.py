@@ -47,7 +47,6 @@ def extract_data(path):
             line = f.readline().split("\t")
             try:
                 column_values.append(line[column_index])
-                print(line[column_index])
             except IndexError:
                 break
         return column_values
@@ -60,47 +59,32 @@ def get_column_index(line, label="7_2009"):
         raise IndexError("The requested column name could not be found in this row")
     
 def count_by_first_digit(values):
-    start_digits = [str(x)[0] for x in values]
-    return Counter(start_digits)
+    start_digit_frequency = Counter([str(x)[0] for x in values])
+    start_digit_percentages = {int(i): round(start_digit_frequency[i] / len(values) * 100.0, 2) for i in start_digit_frequency}
+    return start_digit_percentages
 
 def create_bar_graph(frequency_table):
-        # Generate the figure **without using pyplot**.
-    # fig = Figure()
-    # ax = fig.subplots()
-    # ax.plot([1, 2])
-    # # Save it to a temporary buffer.
-    # buf = BytesIO()
-    # fig.savefig(buf, format="png")
-    # # Embed the result in the html output.
-    # data = base64.b64encode(buf.getbuffer()).decode("ascii")
-    # return f"<img src='data:image/png;base64,{data}'/>"
     fig = Figure()
-    plots = fig.subplots()
-    labels, values = zip(*frequency_table.items())
+    axes = fig.subplots()
+    labels = [i for i in range(1,10)] # choosing to ignore zero
+    values = [frequency_table[j] for j in labels]
 
     indexes = np.arange(len(labels))
-    width = 1
+    width = 0.3
+    bottom = np.zeros(9)
 
-    plots.bar(indexes, values, width)
-    # plots.xticks(indexes + width * 0.5, labels)
+    axes.set_title("Percentage of numbers beginning with given digit")
+    axes.bar(indexes - 0.15, values, width)
+    benford_values = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
+    axes.bar(indexes + 0.15, benford_values, width)
+    axes.set_xticks(indexes, labels)
+    axes.set_ylabel("Percentage")
+    axes.set_xlabel("Leading digit")
     buf = BytesIO()
+    axes.legend(["Dataset value", "Expected value"])
     fig.savefig(buf, format="png")
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return f"<img src='data:image/png;base64,{data}'/>"
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-# @app.route("/")
-# def hello():
-#     # Generate the figure **without using pyplot**.
-#     fig = Figure()
-#     ax = fig.subplots()
-#     ax.plot([1, 2])
-#     # Save it to a temporary buffer.
-#     buf = BytesIO()
-#     fig.savefig(buf, format="png")
-#     # Embed the result in the html output.
-#     data = base64.b64encode(buf.getbuffer()).decode("ascii")
-#     return f"<img src='data:image/png;base64,{data}'/>"
