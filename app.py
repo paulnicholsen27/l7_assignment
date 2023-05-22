@@ -14,7 +14,6 @@ app.config['UPLOAD_FOLDER'] = "uploads"
 
 @app.route('/')
 def index():
-    print("loaded")
     return render_template('index.html')
 	
 @app.route('/uploader', methods = ['GET', 'POST'])
@@ -75,8 +74,7 @@ def create_bar_graph(frequency_table):
 
     axes.set_title("Percentage of numbers beginning with given digit")
     axes.bar(indexes - 0.15, values, width)
-    benford_values = [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
-    axes.bar(indexes + 0.15, benford_values, width)
+    axes.bar(indexes + 0.15, get_benford_values(), width)
     axes.set_xticks(indexes, labels)
     axes.set_ylabel("Percentage")
     axes.set_xlabel("Leading digit")
@@ -85,6 +83,9 @@ def create_bar_graph(frequency_table):
     fig.savefig(buf, format="png")
     data = base64.b64encode(buf.getbuffer()).decode("ascii")
     return f"<img src='data:image/png;base64,{data}'/>"
+
+def get_benford_values():
+    return [30.1, 17.6, 12.5, 9.7, 7.9, 6.7, 5.8, 5.1, 4.6]
 
 if __name__ == '__main__':
     app.run(debug=True)
